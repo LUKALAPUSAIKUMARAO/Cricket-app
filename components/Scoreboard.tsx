@@ -4,7 +4,7 @@ import { useMatchStore } from '@/store/useMatchStore';
 import { useMatchTimer } from '@/hooks/useMatchTimer';
 import { OverScorecardPanel } from './OverScorecardPanel';
 import { ShareScoreModal } from './ShareScoreModal';
-import { ListOrdered, Share2 } from 'lucide-react';
+import { ListOrdered, Share2, Clock } from 'lucide-react';
 
 export function Scoreboard() {
   const { setup, currentInnings, firstInnings, secondInnings, target, matchStartTime } = useMatchStore();
@@ -44,118 +44,123 @@ export function Scoreboard() {
     <>
       <div className="w-full glass-panel border-x-0 rounded-b-3xl sticky top-0 z-10 overflow-hidden shadow-xl">
         <div className="p-4 max-w-md mx-auto space-y-3">
-          {/* Teams + Timer + Utility Buttons */}
+          {/* Top Row: Teams on Left, Action Buttons on Right */}
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <div className="flex items-center space-x-2 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
               <span style={{ color: teamAColor }}>{setup.teamA}</span>
-              <span className="opacity-40">v</span>
+              <span className="opacity-20">/</span>
               <span style={{ color: teamBColor }}>{setup.teamB}</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-xs font-mono text-muted-foreground">⏱ {elapsed}</span>
+            
+            {/* Action buttons - shifted left to avoid TopBar overlap */}
+            <div className="flex items-center space-x-2 mr-32 md:mr-0">
               <button
                 onClick={() => setShowShare(true)}
-                className="w-7 h-7 flex items-center justify-center rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-primary/5 hover:bg-primary/10 transition-colors border border-white/5"
                 title="Share Score"
               >
-                <Share2 className="w-3.5 h-3.5 text-primary" />
+                <Share2 className="w-4 h-4 text-primary" />
               </button>
               <button
                 onClick={() => setShowScorecard(true)}
-                className="w-7 h-7 flex items-center justify-center rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-primary/5 hover:bg-primary/10 transition-colors border border-white/5"
                 title="Over Scorecard"
               >
-                <ListOrdered className="w-3.5 h-3.5 text-primary" />
+                <ListOrdered className="w-4 h-4 text-primary" />
               </button>
-              <span
-                className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                style={{ backgroundColor: `${currentTeamColor}20`, color: currentTeamColor }}
-              >
-                Inn. {currentInnings}
-              </span>
             </div>
           </div>
 
-          {/* Main Score */}
-          <div className="flex justify-between items-end">
-            <div className="flex items-baseline space-x-2">
-              <h1
-                className="text-5xl font-black tracking-tighter"
-                style={{ color: currentTeamColor }}
-              >
-                {currentStats.score}
-                <span className="text-3xl font-medium text-muted-foreground">/{currentStats.wickets}</span>
-              </h1>
+          {/* Score + Timer + Innings Row */}
+          <div className="flex justify-between items-center bg-background/20 rounded-2xl p-3 border border-white/5 shadow-inner">
+            <div className="flex flex-col">
+              <div className="flex items-center space-x-2 mb-1">
+                <span
+                  className="text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter"
+                  style={{ backgroundColor: `${currentTeamColor}20`, color: currentTeamColor }}
+                >
+                  Innings {currentInnings}
+                </span>
+                <span className="flex items-center text-[9px] font-bold text-muted-foreground bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
+                  <Clock className="w-2.5 h-2.5 mr-1 opacity-60" />
+                  {elapsed}
+                </span>
+              </div>
+              <div className="flex items-baseline space-x-1">
+                <h1
+                  className="text-5xl font-black tracking-tighter score-pop leading-none"
+                  style={{ color: currentTeamColor }}
+                >
+                  {currentStats.score}
+                  <span className="text-3xl font-medium text-muted-foreground/50 ml-1">/{currentStats.wickets}</span>
+                </h1>
+              </div>
             </div>
+
             <div className="text-right">
-              <p className="text-sm font-medium text-muted-foreground">Overs</p>
-              <p className="text-3xl font-bold font-mono">
+              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-60 mb-0.5">Overs</p>
+              <p className="text-3xl font-black font-mono leading-none">
                 {currentStats.overs.toFixed(1)}
-                <span className="text-lg text-muted-foreground">/{setup.totalOvers}</span>
+                <span className="text-sm text-muted-foreground/40 font-bold">/{setup.totalOvers}</span>
               </p>
             </div>
           </div>
 
-          {/* Stats Row */}
-          <div className="flex justify-between items-center pt-1 border-t border-border/50 text-xs font-medium">
+          {/* Stats Summary */}
+          <div className="flex justify-between items-center px-1 text-[11px] font-bold border-t border-white/5 pt-2">
             {currentInnings === 2 && target ? (
               <>
-                <span className="text-muted-foreground">
-                  Target <span className="text-foreground font-bold">{target}</span>
-                </span>
-                <span className="text-muted-foreground">
-                  Need <span className="text-foreground font-bold">{Math.max(0, runsNeeded)}</span> off <span className="text-foreground font-bold">{Math.max(0, ballsRemaining)}</span>b
-                </span>
-                <span className="text-muted-foreground">
-                  RRR <span className="text-foreground font-bold">{requiredRunRate > 0 ? requiredRunRate.toFixed(2) : '–'}</span>
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-[8px] uppercase text-muted-foreground tracking-tighter mb-0.5">Target</span>
+                  <span className="text-foreground leading-none">{target}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-[8px] uppercase text-muted-foreground tracking-tighter mb-0.5">To Win</span>
+                  <span className="text-foreground leading-none">
+                    {Math.max(0, runsNeeded)} <span className="opacity-40 font-medium">in</span> {Math.max(0, ballsRemaining)}b
+                  </span>
+                </div>
+                <div className="flex flex-col items-end">
+                  <span className="text-[8px] uppercase text-muted-foreground tracking-tighter mb-0.5">RRR</span>
+                  <span className="text-foreground leading-none">{requiredRunRate > 0 ? requiredRunRate.toFixed(2) : '–'}</span>
+                </div>
               </>
             ) : (
               <>
-                <span className="text-muted-foreground">
-                  CRR <span className="text-foreground font-bold">{currentRunRate > 0 ? currentRunRate.toFixed(2) : '–'}</span>
-                </span>
-                <span className="text-muted-foreground">
-                  Balls <span className="text-foreground font-bold">{currentStats.totalBalls}</span>
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-[8px] uppercase text-muted-foreground tracking-tighter mb-0.5">Run Rate</span>
+                  <span className="text-foreground leading-none">{currentRunRate > 0 ? currentRunRate.toFixed(2) : '–'}</span>
+                </div>
+                <div className="flex flex-col items-end">
+                  <span className="text-[8px] uppercase text-muted-foreground tracking-tighter mb-0.5">Total Balls</span>
+                  <span className="text-foreground leading-none">{currentStats.totalBalls}</span>
+                </div>
               </>
             )}
           </div>
 
-          {/* Last 6 Balls */}
-          <div className="flex items-center space-x-2 h-9">
-            <span className="text-xs font-semibold text-muted-foreground w-12">Recent:</span>
-            <div className="flex space-x-1.5 flex-1 overflow-x-auto no-scrollbar">
-              {recentBalls.map((ball) => {
+          {/* Recent Balls */}
+          <div className="flex space-x-1.5 overflow-x-auto no-scrollbar pt-1">
+            {recentBalls.length > 0 ? (
+              recentBalls.map((ball) => {
                 let label = ball.runs.toString();
-                let bgColor = 'bg-secondary text-secondary-foreground';
-
-                if (ball.isWicket) {
-                  label = 'W'; bgColor = 'bg-destructive text-destructive-foreground';
-                } else if (ball.isBoundary && ball.runs === 4) {
-                  label = '4'; bgColor = 'bg-blue-500 text-white';
-                } else if (ball.isSix && ball.runs === 6) {
-                  label = '6'; bgColor = 'bg-purple-600 text-white';
-                } else if (ball.extras.type !== 'none') {
-                  const shortExtra = ball.extras.type === 'wide' ? 'wd'
-                    : ball.extras.type === 'no-ball' ? 'nb'
-                    : ball.extras.type === 'leg-bye' ? 'lb' : 'b';
-                  label = `${ball.runs + ball.extras.runs}${shortExtra}`;
-                  bgColor = 'bg-amber-500 text-white';
-                } else if (ball.runs === 0) {
-                  label = '·';
+                let bgColor = 'bg-secondary/40 text-secondary-foreground';
+                if (ball.isWicket) { label = 'W'; bgColor = 'bg-destructive text-destructive-foreground wicket-shake'; }
+                else if (ball.isBoundary && ball.runs === 4) { label = '4'; bgColor = 'bg-blue-500 text-white'; }
+                else if (ball.isSix && ball.runs === 6) { label = '6'; bgColor = 'bg-purple-600 text-white'; }
+                else if (ball.extras.type !== 'none') {
+                  const type = ball.extras.type === 'wide' ? 'wd' : ball.extras.type === 'no-ball' ? 'nb' : 'lb';
+                  label = `${ball.runs + ball.extras.runs}${type}`; bgColor = 'bg-amber-500 text-white';
                 }
-
                 return (
-                  <div
-                    key={ball.id}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${bgColor} transition-all`}
-                  >
+                  <div key={ball.id} className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 ${bgColor} border border-white/5`}>
                     {label}
                   </div>
                 );
-              })}
-            </div>
+              })
+            ) : (
+              <span className="text-[10px] text-muted-foreground italic opacity-40">Ready to start over...</span>
+            )}
           </div>
         </div>
       </div>

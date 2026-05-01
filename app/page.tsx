@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useMatchStore } from '@/store/useMatchStore';
 import { SetupScreen } from '@/components/SetupScreen';
-import { InningsSelection } from '@/components/InningsSelection';
+import { InningsBreakScreen } from '@/components/InningsBreakScreen';
 import { Scoreboard } from '@/components/Scoreboard';
 import { ScoringPad } from '@/components/ScoringPad';
 import { BoundaryAnimation } from '@/components/Animations';
@@ -57,7 +57,7 @@ export default function Home() {
       ) : isMatchComplete ? (
         <MatchSummary />
       ) : isFirstInningsFinished ? (
-        <InningsSelection />
+        <InningsBreakScreen />
       ) : (
         <>
           <Scoreboard />

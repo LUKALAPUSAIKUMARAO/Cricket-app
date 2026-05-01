@@ -56,6 +56,7 @@ export interface MatchStore extends MatchState {
   actionHistory: MatchState[];
   savedMatches: SavedMatch[];
   setSetup: (setup: MatchSetup) => void;
+  setChaseSetup: (setup: MatchSetup, target: number) => void;
   setInnings: (innings: 1 | 2, target?: number) => void;
   addBall: (ball: Omit<BallInfo, 'id' | 'timestamp'>) => void;
   undoLastBall: () => void;
@@ -114,6 +115,25 @@ export const useMatchStore = create<MatchStore>()(
           return {
             setup,
             matchStartTime: Date.now(),
+            actionHistory: [...state.actionHistory, snapshot],
+          };
+        }),
+
+      setChaseSetup: (setup, target) =>
+        set((state) => {
+          const snapshot = extractState(state);
+          return {
+            setup,
+            currentInnings: 2,
+            target,
+            matchStartTime: Date.now(),
+            // Mock first innings for history/results if starting from 2nd
+            firstInnings: {
+              ...initialInnings,
+              score: target - 1,
+              overs: setup.totalOvers,
+            },
+            secondInnings: { ...initialInnings },
             actionHistory: [...state.actionHistory, snapshot],
           };
         }),
