@@ -11,20 +11,20 @@ interface ScoringPadProps {
   onBoundary: (type: '4' | '6') => void;
   soundEnabled: boolean;
   onToggleSound: () => void;
+  isDisabled?: boolean;
 }
 
-export function ScoringPad({ onBoundary, soundEnabled, onToggleSound }: ScoringPadProps) {
-  const { addBall, undoLastBall, resetMatch, isMatchComplete } = useMatchStore();
-  const [showExtras, setShowExtras] = useState(false);
+export function ScoringPad({ onBoundary, soundEnabled, onToggleSound, isDisabled }: ScoringPadProps) {
+  const { addBall, undoLastBall, resetMatch } = useMatchStore();
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
-
+  
   // Keep screen awake while scoring
-  useWakeLock(!isMatchComplete);
-
-  // Sound effects (controlled externally via TopBar, but hooked in here)
+  useWakeLock();
+  
   const { playBoundary, playSix, playWicket, playDot } = useSoundEffects();
 
   const handleRuns = (runs: number) => {
+    if (isDisabled) return;
     if (runs === 4) { onBoundary('4'); playBoundary(); }
     if (runs === 6) { onBoundary('6'); playSix(); }
     if (runs === 0) playDot();
@@ -39,6 +39,7 @@ export function ScoringPad({ onBoundary, soundEnabled, onToggleSound }: ScoringP
   };
 
   const handleWicket = () => {
+    if (isDisabled) return;
     playWicket();
     addBall({
       runs: 0,
@@ -49,7 +50,8 @@ export function ScoringPad({ onBoundary, soundEnabled, onToggleSound }: ScoringP
     });
   };
 
-  const handleExtras = (type: ExtrasType) => {
+  const handleExtras = (type: 'wide' | 'no-ball') => {
+    if (isDisabled) return;
     addBall({
       runs: 0,
       isWicket: false,
@@ -57,102 +59,110 @@ export function ScoringPad({ onBoundary, soundEnabled, onToggleSound }: ScoringP
       isBoundary: false,
       isSix: false,
     });
-    setShowExtras(false);
   };
 
+  const runBtnClass = "h-16 text-2xl font-black rounded-2xl transition-all active:scale-90 shadow-md disabled:opacity-50";
+  const extraBtnClass = "h-14 text-sm font-black rounded-2xl transition-all active:scale-95 shadow-lg uppercase tracking-wider disabled:opacity-50";
+
   return (
-    <>
-      <div className="w-full max-w-md mx-auto px-4 pb-10 pt-2 flex-1 flex flex-col justify-end">
-        {/* Action Row */}
-        <div className="flex justify-between items-center mb-4">
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => setShowRestartConfirm(true)}
-            className="rounded-full shadow-sm bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground border-transparent"
-          >
-            Restart
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={undoLastBall}
-            disabled={isMatchComplete}
-            className="rounded-full shadow-sm"
-          >
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Undo Last Ball
-          </Button>
-        </div>
-
-        {/* Extras Menu */}
-        {showExtras && (
-          <div className="grid grid-cols-4 gap-2 mb-4 animate-in slide-in-from-bottom-4 fade-in">
-            {(['wide', 'no-ball', 'bye', 'leg-bye'] as ExtrasType[]).map((ext) => (
-              <Button
-                key={ext}
-                variant="outline"
-                className="h-12 border-amber-500/50 text-amber-600 dark:text-amber-400 uppercase text-xs font-bold bg-amber-500/5 hover:bg-amber-500/20"
-                onClick={() => handleExtras(ext)}
-              >
-                {ext === 'no-ball' ? 'NB' : ext === 'leg-bye' ? 'LB' : ext.toUpperCase()}
-              </Button>
-            ))}
-          </div>
-        )}
-
-        {/* Main Numpad */}
-        <div className="grid grid-cols-3 gap-3">
-          {[0, 1, 2, 3, 4, 6].map((num) => {
-            let colorClass = 'bg-card/80 backdrop-blur-sm hover:bg-accent border-2 border-border text-foreground';
-            if (num === 4) colorClass = 'bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 text-blue-700 dark:bg-blue-950/80 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-900/80 backdrop-blur-sm';
-            if (num === 6) colorClass = 'bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 text-purple-700 dark:bg-purple-950/80 dark:border-purple-900 dark:text-purple-300 dark:hover:bg-purple-900/80 backdrop-blur-sm';
-
-            return (
-              <button
-                key={num}
-                disabled={isMatchComplete}
-                onClick={() => handleRuns(num)}
-                className={`h-20 rounded-2xl text-3xl font-black shadow-sm active:scale-95 transition-all duration-75 disabled:opacity-50 ${colorClass}`}
-              >
-                {num}
-              </button>
-            );
-          })}
-
-          {/* Wicket */}
-          <button
-            disabled={isMatchComplete}
-            onClick={handleWicket}
-            className="h-20 col-span-2 rounded-2xl text-2xl font-black bg-destructive/90 text-destructive-foreground shadow-sm active:scale-95 transition-all duration-75 disabled:opacity-50 backdrop-blur-sm"
-          >
-            WICKET
-          </button>
-
-          {/* Extras Toggle */}
-          <button
-            disabled={isMatchComplete}
-            onClick={() => setShowExtras(!showExtras)}
-            className={`h-20 rounded-2xl text-xl font-black shadow-sm active:scale-95 transition-all duration-75 disabled:opacity-50 ${
-              showExtras
-                ? 'bg-amber-500 text-white'
-                : 'bg-card/80 backdrop-blur-sm border-2 border-border text-foreground hover:bg-accent'
-            }`}
-          >
-            EXTRAS
-          </button>
-        </div>
+    <div className="p-4 max-w-md mx-auto w-full space-y-5 mb-8">
+      {/* Utility Row */}
+      <div className="flex justify-between items-center px-1">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => setShowRestartConfirm(true)}
+          className="text-destructive hover:text-destructive hover:bg-destructive/10 font-bold rounded-full gap-2 px-4 h-9 border border-destructive/10"
+          disabled={isDisabled}
+        >
+          Restart
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={undoLastBall}
+          className="font-bold rounded-full gap-2 px-4 h-9 border-2 bg-background/50 backdrop-blur-sm shadow-sm"
+          disabled={isDisabled}
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          Undo
+        </Button>
       </div>
 
-      <ConfirmModal
+      {/* Extras at the TOP as requested */}
+      <div className="grid grid-cols-2 gap-3">
+        <Button
+          variant="outline"
+          className={`${extraBtnClass} bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-500`}
+          onClick={() => handleExtras('wide')}
+          disabled={isDisabled}
+        >
+          WIDE
+        </Button>
+        <Button
+          variant="outline"
+          className={`${extraBtnClass} bg-orange-50 border-orange-200 text-orange-700 dark:bg-orange-900/20 dark:border-orange-800 dark:text-orange-500`}
+          onClick={() => handleExtras('no-ball')}
+          disabled={isDisabled}
+        >
+          NO BALL
+        </Button>
+      </div>
+
+      {/* Main Scoring Grid */}
+      <div className="grid grid-cols-4 gap-3">
+        {[0, 1, 2, 3].map((run) => (
+          <Button
+            key={run}
+            variant="outline"
+            className={runBtnClass}
+            onClick={() => handleRuns(run)}
+            disabled={isDisabled}
+          >
+            {run}
+          </Button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Button
+          variant="outline"
+          className={`${runBtnClass} h-20 text-blue-600 bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800`}
+          onClick={() => handleRuns(4)}
+          disabled={isDisabled}
+        >
+          4
+        </Button>
+        <Button
+          variant="outline"
+          className={`${runBtnClass} h-20 text-purple-600 bg-purple-50 border-purple-200 dark:bg-purple-900/20 dark:border-purple-800`}
+          onClick={() => handleRuns(6)}
+          disabled={isDisabled}
+        >
+          6
+        </Button>
+      </div>
+
+      {/* Wicket at the Bottom */}
+      <Button
+        variant="destructive"
+        className="w-full h-20 text-2xl font-black rounded-3xl shadow-xl active:scale-95 transition-transform disabled:opacity-50 uppercase tracking-widest"
+        onClick={handleWicket}
+        disabled={isDisabled}
+      >
+        WICKET
+      </Button>
+
+      <ConfirmModal 
         isOpen={showRestartConfirm}
         onClose={() => setShowRestartConfirm(false)}
-        onConfirm={resetMatch}
+        onConfirm={() => {
+          resetMatch();
+          setShowRestartConfirm(false);
+        }}
         title="Restart Match?"
-        description="Are you sure you want to abandon this match and start over? All current progress will be lost."
-        confirmText="Yes, Restart"
-        cancelText="No, Continue"
+        message="Are you sure you want to clear all scores and restart the match?"
       />
-    </>
+    </div>
   );
 }

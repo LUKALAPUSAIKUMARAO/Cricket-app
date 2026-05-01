@@ -65,6 +65,7 @@ export default function Home() {
             onBoundary={setBoundaryType}
             soundEnabled={soundEnabled}
             onToggleSound={toggleSound}
+            isDisabled={!!boundaryType}
           />
         </>
       )}

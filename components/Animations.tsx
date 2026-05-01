@@ -1,3 +1,4 @@
+'use client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 
@@ -10,7 +11,7 @@ export function BoundaryAnimation({
 }) {
   useEffect(() => {
     if (type) {
-      const timer = setTimeout(onComplete, 2000);
+      const timer = setTimeout(onComplete, 2500);
       return () => clearTimeout(timer);
     }
   }, [type, onComplete]);
@@ -23,14 +24,15 @@ export function BoundaryAnimation({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none bg-black/60 backdrop-blur-md"
+          onClick={onComplete} // Allow stopping the animation on click
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-md cursor-pointer"
         >
           <motion.div
             initial={{ scale: 0, y: 100, rotate: -45 }}
             animate={{ scale: 1, y: 0, rotate: 0 }}
             exit={{ scale: 1.5, opacity: 0, filter: 'blur(10px)' }}
             transition={{ type: 'spring', damping: 12, stiffness: 100 }}
-            className="relative"
+            className="relative pointer-events-none"
           >
             <motion.div
               animate={{ 
