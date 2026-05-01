@@ -19,7 +19,7 @@ export function ScoringPad({ onBoundary, soundEnabled, onToggleSound, isDisabled
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   
   // Keep screen awake while scoring
-  useWakeLock();
+  useWakeLock(true);
   
   const { playBoundary, playSix, playWicket, playDot } = useSoundEffects();
 
@@ -161,7 +161,7 @@ export function ScoringPad({ onBoundary, soundEnabled, onToggleSound, isDisabled
           setShowRestartConfirm(false);
         }}
         title="Restart Match?"
-        message="Are you sure you want to clear all scores and restart the match?"
+        description="Are you sure you want to clear all scores and restart the match?"
       />
     </div>
   );
