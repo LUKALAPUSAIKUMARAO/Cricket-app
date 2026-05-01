@@ -44,31 +44,37 @@ export function Scoreboard() {
     <>
       <div className="w-full glass-panel border-x-0 rounded-b-3xl sticky top-0 z-10 overflow-hidden shadow-xl">
         <div className="p-4 max-w-md mx-auto space-y-3">
-          {/* Top Row: Teams on Left, Action Buttons on Right */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
-              <span style={{ color: teamAColor }}>{setup.teamA}</span>
-              <span className="opacity-20">/</span>
-              <span style={{ color: teamBColor }}>{setup.teamB}</span>
-            </div>
-            
-            {/* Action buttons - shifted left to avoid TopBar overlap */}
-            <div className="flex items-center space-x-2 mr-32 md:mr-0">
+          {/* Top Row: Absolute Centered Teams, Buttons on Left */}
+          <div className="relative flex items-center justify-between min-h-[40px]">
+            {/* Left Actions */}
+            <div className="flex items-center space-x-2 z-10">
               <button
                 onClick={() => setShowShare(true)}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-primary/5 hover:bg-primary/10 transition-colors border border-white/5"
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-primary/5 hover:bg-primary/10 transition-colors border border-white/5 shadow-sm"
                 title="Share Score"
               >
-                <Share2 className="w-4 h-4 text-primary" />
+                <Share2 className="w-4.5 h-4.5 text-primary" />
               </button>
               <button
                 onClick={() => setShowScorecard(true)}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-primary/5 hover:bg-primary/10 transition-colors border border-white/5"
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-primary/5 hover:bg-primary/10 transition-colors border border-white/5 shadow-sm"
                 title="Over Scorecard"
               >
-                <ListOrdered className="w-4 h-4 text-primary" />
+                <ListOrdered className="w-4.5 h-4.5 text-primary" />
               </button>
             </div>
+
+            {/* Centered Teams */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="flex items-center space-x-2 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] bg-background/30 px-3 py-1 rounded-full border border-white/5 backdrop-blur-sm shadow-inner">
+                <span style={{ color: teamAColor }}>{setup.teamA}</span>
+                <span className="opacity-20 font-bold italic">vs</span>
+                <span style={{ color: teamBColor }}>{setup.teamB}</span>
+              </div>
+            </div>
+
+            {/* Empty space for TopBar buttons on the right */}
+            <div className="w-24 md:w-0" aria-hidden="true" />
           </div>
 
           {/* Score + Timer + Innings Row */}

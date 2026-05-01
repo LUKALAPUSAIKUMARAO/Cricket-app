@@ -15,19 +15,20 @@ export function TopBar({ soundEnabled, onToggleSound }: TopBarProps) {
   const { isFullscreen, toggle: toggleFullscreen } = useFullscreen();
   const [showHistory, setShowHistory] = useState(false);
 
-  // Smaller buttons for mobile to prevent overlap
-  const iconBtn = 'w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-full glass-panel border border-white/10 hover:bg-white/10 active:scale-95 transition-all';
+  // Spaced out buttons
+  const iconBtn = 'w-9 h-9 flex items-center justify-center rounded-full glass-panel border border-white/10 hover:bg-white/10 active:scale-95 transition-all shadow-lg';
 
   return (
     <>
-      <div className="fixed top-3 right-3 md:top-4 md:right-4 z-[60] flex items-center space-x-1.5 md:space-x-2">
+      {/* Utility buttons moved to the top-right but with plenty of gap from the edge */}
+      <div className="fixed top-3 right-3 md:top-4 md:right-4 z-[100] flex flex-row items-center gap-2.5">
         <button
           onClick={() => setShowHistory(true)}
           className={iconBtn}
           aria-label="Match History"
           title="Match History"
         >
-          <History className="w-3.5 h-3.5 md:w-4 md:h-4" />
+          <History className="w-4 h-4" />
         </button>
 
         <button
@@ -37,9 +38,9 @@ export function TopBar({ soundEnabled, onToggleSound }: TopBarProps) {
           title={soundEnabled ? 'Sound On' : 'Sound Off'}
         >
           {soundEnabled ? (
-            <Volume2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+            <Volume2 className="w-4 h-4" />
           ) : (
-            <VolumeX className="w-3.5 h-3.5 md:w-4 md:h-4 text-muted-foreground" />
+            <VolumeX className="w-4 h-4 text-muted-foreground" />
           )}
         </button>
 
@@ -50,9 +51,9 @@ export function TopBar({ soundEnabled, onToggleSound }: TopBarProps) {
           title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
         >
           {isFullscreen ? (
-            <Minimize className="w-3.5 h-3.5 md:w-4 md:h-4" />
+            <Minimize className="w-4 h-4" />
           ) : (
-            <Maximize className="w-3.5 h-3.5 md:w-4 md:h-4" />
+            <Maximize className="w-4 h-4" />
           )}
         </button>
 
@@ -63,9 +64,9 @@ export function TopBar({ soundEnabled, onToggleSound }: TopBarProps) {
           title="Toggle Theme"
         >
           {theme === 'dark' ? (
-            <Sun className="w-3.5 h-3.5 md:w-4 md:h-4" />
+            <Sun className="w-4 h-4" />
           ) : (
-            <Moon className="w-3.5 h-3.5 md:w-4 md:h-4" />
+            <Moon className="w-4 h-4" />
           )}
         </button>
       </div>
