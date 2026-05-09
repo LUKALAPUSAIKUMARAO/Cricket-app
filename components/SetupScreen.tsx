@@ -26,6 +26,8 @@ export function SetupScreen() {
       totalOvers: Number(overs),
       teamAColor,
       teamBColor,
+      teamAPlayers: [],
+      teamBPlayers: [],
     };
 
     if (mode === 'chase' && target) {
@@ -136,7 +138,7 @@ export function SetupScreen() {
             type="submit"
             className="w-full h-14 text-lg font-bold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98] transition-transform shadow-lg"
           >
-            {mode === 'chase' ? 'Start Chase 🎯' : 'Start Match 🏏'}
+            {mode === 'chase' ? 'Next: Team Setup 🎯' : 'Next: Team Setup 🏏'}
           </Button>
         </form>
       </div>

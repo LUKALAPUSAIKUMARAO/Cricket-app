@@ -3,17 +3,19 @@
 import { useEffect, useState } from 'react';
 import { useMatchStore } from '@/store/useMatchStore';
 import { SetupScreen } from '@/components/SetupScreen';
+import { PreMatchFlow } from '@/components/pre-match/PreMatchFlow';
 import { InningsBreakScreen } from '@/components/InningsBreakScreen';
 import { Scoreboard } from '@/components/Scoreboard';
 import { ScoringPad } from '@/components/ScoringPad';
 import { BoundaryAnimation } from '@/components/Animations';
 import { MatchSummary } from '@/components/MatchSummary';
 import { TopBar } from '@/components/TopBar';
+import { LivePlayerSelection } from '@/components/pre-match/LivePlayerSelection';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { useNightMode } from '@/hooks/useNightMode';
 
 export default function Home() {
-  const { setup, currentInnings, firstInnings, isMatchComplete } = useMatchStore();
+  const { setup, currentInnings, firstInnings, isMatchComplete, isInitialized } = useMatchStore();
   const [boundaryType, setBoundaryType] = useState<'4' | '6' | null>(null);
   const [mounted, setMounted] = useState(false);
   const { soundEnabled, toggleSound } = useSoundEffects();
@@ -54,6 +56,8 @@ export default function Home() {
 
       {!setup ? (
         <SetupScreen />
+      ) : !isInitialized ? (
+        <PreMatchFlow />
       ) : isMatchComplete ? (
         <MatchSummary />
       ) : isFirstInningsFinished ? (
@@ -71,6 +75,8 @@ export default function Home() {
       )}
 
       <BoundaryAnimation type={boundaryType} onComplete={() => setBoundaryType(null)} />
+
+      {isInitialized && <LivePlayerSelection />}
 
       <a
         href="https://www.instagram.com/_nameisai_?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
