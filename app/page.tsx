@@ -42,10 +42,14 @@ export default function Home() {
 
   if (!mounted) return <div className="min-h-screen bg-background" />;
 
+  const battingTeamPlayersCount = currentInnings === 1 
+    ? (setup?.teamAPlayers.length || 11) 
+    : (setup?.teamBPlayers.length || 11);
+
   const isFirstInningsFinished =
     setup &&
     currentInnings === 1 &&
-    (firstInnings.wickets >= 10 || firstInnings.overs >= setup.totalOvers);
+    (firstInnings.wickets >= battingTeamPlayersCount - 1 || firstInnings.overs >= setup.totalOvers);
 
   return (
     <main className="flex flex-col min-h-[100dvh] relative overflow-hidden text-foreground">

@@ -198,9 +198,31 @@ export const useMatchStore = create<MatchStore>()(
 
       setToss: (toss) =>
         set((state) => {
+          if (!state.setup) return state;
           const snapshot = extractState(state);
+          
+          let newSetup = { ...state.setup };
+          
+          const teamAWon = toss.winner === state.setup.teamA;
+          const batsFirst = (teamAWon && toss.decision === 'bat') || (!teamAWon && toss.decision === 'bowl') ? 'A' : 'B';
+
+          // If Team B is supposed to bat first, swap Team A and Team B in the setup
+          // so that Team A is ALWAYS the team batting in the 1st innings.
+          if (batsFirst === 'B') {
+            newSetup = {
+              ...newSetup,
+              teamA: state.setup.teamB,
+              teamB: state.setup.teamA,
+              teamAPlayers: state.setup.teamBPlayers,
+              teamBPlayers: state.setup.teamAPlayers,
+              teamAColor: state.setup.teamBColor,
+              teamBColor: state.setup.teamAColor,
+            };
+          }
+
           return {
             toss,
+            setup: newSetup,
             actionHistory: [...state.actionHistory, snapshot],
           };
         }),
@@ -314,7 +336,8 @@ export const useMatchStore = create<MatchStore>()(
           }
 
           let isMatchComplete: boolean = false;
-          const isAllOut = newWickets >= 10;
+          const battingTeamPlayers = state.setup?.[isFirstInnings ? 'teamAPlayers' : 'teamBPlayers'] || [];
+          const isAllOut = newWickets >= Math.max(1, battingTeamPlayers.length - 1);
           const isOversFinished = state.setup && calculateOvers(newTotalBalls) >= state.setup.totalOvers;
           const targetReached = state.currentInnings === 2 && state.target && newScore >= state.target;
 

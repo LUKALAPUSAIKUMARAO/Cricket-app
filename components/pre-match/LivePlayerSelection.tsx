@@ -29,6 +29,12 @@ export function LivePlayerSelection() {
   const needsNonStriker = !currentStats.nonStrikerId && currentStats.strikerId; // Only ask for non-striker after striker is selected
   const needsBowler = !currentStats.currentBowlerId && currentStats.strikerId && currentStats.nonStrikerId;
 
+  // ALL-OUT FIX: If we need a batsman but nobody is available, the innings is over.
+  // page.tsx will unmount us soon.
+  const needsBatter = needsStriker || needsNonStriker;
+  const isAllOut = needsBatter && availableBatsmen.length === 0;
+
+  if (isAllOut) return null; // Don't render empty modal
   if (!needsStriker && !needsNonStriker && !needsBowler) return null;
 
   return (
