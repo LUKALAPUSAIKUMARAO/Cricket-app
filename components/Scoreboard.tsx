@@ -115,16 +115,16 @@ export function Scoreboard() {
                   style={{ color: currentTeamColor, textShadow: `0 0 30px ${currentTeamColor}40` }}
                 >
                   {currentStats.score}
-                  <span className="text-3xl font-medium text-muted-foreground/30 ml-1">/{currentStats.wickets}</span>
+                  <span className="text-4xl font-bold text-foreground/80 ml-1">/{currentStats.wickets}</span>
                 </h1>
               </div>
             </div>
 
             <div className="text-right relative z-10">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-60 mb-1">Overs</p>
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-80 mb-1">Overs</p>
               <p className="text-4xl font-black font-mono leading-none tracking-tight text-foreground/90">
                 {currentStats.overs.toFixed(1)}
-                <span className="text-base text-muted-foreground/30 font-bold ml-0.5">/{setup.totalOvers}</span>
+                <span className="text-xl text-foreground/70 font-bold ml-0.5">/{setup.totalOvers}</span>
               </p>
             </div>
           </div>

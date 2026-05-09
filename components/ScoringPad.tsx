@@ -24,6 +24,7 @@ export function ScoringPad({ onBoundary, soundEnabled, onToggleSound, isDisabled
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   const [showRunOutMenu, setShowRunOutMenu] = useState(false);
   const [showInjuryMenu, setShowInjuryMenu] = useState(false);
+  const [runOutRuns, setRunOutRuns] = useState<number | null>(null);
   
   const currentStats = currentInnings === 1 ? firstInnings : secondInnings;
 
@@ -101,7 +102,7 @@ export function ScoringPad({ onBoundary, soundEnabled, onToggleSound, isDisabled
       {/* Extras at the TOP as requested */}
       <div className="grid grid-cols-2 gap-4">
         <Button
-          variant="outline"
+          variant="ghost"
           className={`${extraBtnClass} text-amber-500 hover:text-amber-400 hover:border-amber-500/30`}
           onClick={() => handleExtras('wide')}
           disabled={isDisabled}
@@ -109,7 +110,7 @@ export function ScoringPad({ onBoundary, soundEnabled, onToggleSound, isDisabled
           WIDE
         </Button>
         <Button
-          variant="outline"
+          variant="ghost"
           className={`${extraBtnClass} text-orange-500 hover:text-orange-400 hover:border-orange-500/30`}
           onClick={() => handleExtras('no-ball')}
           disabled={isDisabled}
@@ -123,7 +124,7 @@ export function ScoringPad({ onBoundary, soundEnabled, onToggleSound, isDisabled
         {[0, 1, 2, 3].map((run) => (
           <Button
             key={run}
-            variant="outline"
+            variant="ghost"
             className={runBtnClass}
             onClick={() => handleRuns(run)}
             disabled={isDisabled}
@@ -135,7 +136,7 @@ export function ScoringPad({ onBoundary, soundEnabled, onToggleSound, isDisabled
 
       <div className="grid grid-cols-2 gap-4">
         <Button
-          variant="outline"
+          variant="ghost"
           className={`${runBtnClass} h-20 text-[2rem] text-blue-400 border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)] hover:shadow-[0_0_30px_rgba(59,130,246,0.2)] hover:border-blue-400/40`}
           onClick={() => handleRuns(4)}
           disabled={isDisabled}
@@ -143,7 +144,7 @@ export function ScoringPad({ onBoundary, soundEnabled, onToggleSound, isDisabled
           4
         </Button>
         <Button
-          variant="outline"
+          variant="ghost"
           className={`${runBtnClass} h-20 text-[2rem] text-purple-400 border-purple-500/20 shadow-[0_0_20px_rgba(168,85,247,0.1)] hover:shadow-[0_0_30px_rgba(168,85,247,0.2)] hover:border-purple-400/40`}
           onClick={() => handleRuns(6)}
           disabled={isDisabled}
@@ -165,7 +166,7 @@ export function ScoringPad({ onBoundary, soundEnabled, onToggleSound, isDisabled
 
         <div className="grid grid-cols-2 gap-4">
           <Button
-            variant="outline"
+            variant="ghost"
             className="h-14 font-black rounded-2xl glass-button text-red-400 border-red-500/20 hover:bg-red-500/10 hover:border-red-500/30 tracking-widest"
             onClick={() => setShowRunOutMenu(true)}
             disabled={isDisabled}
@@ -173,7 +174,7 @@ export function ScoringPad({ onBoundary, soundEnabled, onToggleSound, isDisabled
             RUN OUT
           </Button>
           <Button
-            variant="outline"
+            variant="ghost"
             className="h-14 font-black rounded-2xl glass-button text-amber-500 border-amber-500/20 hover:bg-amber-500/10 hover:border-amber-500/30 tracking-widest"
             onClick={() => setShowInjuryMenu(true)}
             disabled={isDisabled}
@@ -193,27 +194,54 @@ export function ScoringPad({ onBoundary, soundEnabled, onToggleSound, isDisabled
             className="fixed inset-0 z-[110] bg-background/90 backdrop-blur-xl p-8 flex flex-col justify-center"
           >
             <div className="space-y-8 max-w-sm mx-auto w-full">
-              <div className="text-center space-y-2">
-                <h2 className="text-3xl font-black">Run Out!</h2>
-                <p className="text-muted-foreground font-bold">How many runs were completed?</p>
-              </div>
-              <div className="grid grid-cols-5 gap-2">
-                {[0, 1, 2, 3, 4].map(r => (
-                  <Button 
-                    key={r} 
-                    onClick={() => {
-                      if (currentStats?.strikerId) {
-                        addRunOut(r, currentStats.strikerId);
-                      }
-                      setShowRunOutMenu(false);
-                    }}
-                    className="h-16 text-xl font-black rounded-xl"
-                  >
-                    {r}
-                  </Button>
-                ))}
-              </div>
-              <Button variant="ghost" onClick={() => setShowRunOutMenu(false)} className="w-full font-bold">Cancel</Button>
+              {runOutRuns === null ? (
+                <>
+                  <div className="text-center space-y-2">
+                    <h2 className="text-3xl font-black">Run Out!</h2>
+                    <p className="text-muted-foreground font-bold">How many runs were completed?</p>
+                  </div>
+                  <div className="grid grid-cols-5 gap-2">
+                    {[0, 1, 2, 3, 4].map(r => (
+                      <Button 
+                        key={r} 
+                        onClick={() => setRunOutRuns(r)}
+                        className="h-16 text-xl font-black rounded-xl"
+                      >
+                        {r}
+                      </Button>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-center space-y-2">
+                    <h2 className="text-3xl font-black">Who is out?</h2>
+                    <p className="text-muted-foreground font-bold">Select the player who was run out</p>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3">
+                    {[
+                      { id: currentStats?.strikerId, label: 'Striker' },
+                      { id: currentStats?.nonStrikerId, label: 'Non-Striker' }
+                    ].filter(p => p.id).map(p => (
+                      <Button 
+                        key={p.id} 
+                        onClick={() => {
+                          addRunOut(runOutRuns, p.id!);
+                          setRunOutRuns(null);
+                          setShowRunOutMenu(false);
+                        }}
+                        className="h-16 text-xl font-black rounded-xl"
+                      >
+                        {p.label}
+                      </Button>
+                    ))}
+                  </div>
+                </>
+              )}
+              <Button variant="ghost" onClick={() => {
+                setRunOutRuns(null);
+                setShowRunOutMenu(false);
+              }} className="w-full font-bold">Cancel</Button>
             </div>
           </motion.div>
         )}

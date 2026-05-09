@@ -91,7 +91,7 @@ export interface MatchStore extends MatchState {
   setChaseSetup: (setup: MatchSetup, target: number) => void;
   setInnings: (innings: 1 | 2, target?: number) => void;
   setToss: (toss: TossResult) => void;
-  addBall: (ball: Omit<BallInfo, 'id' | 'timestamp' | 'strikerId' | 'bowlerId'> & { strikerId?: string | null; bowlerId?: string | null }) => void;
+  addBall: (ball: Omit<BallInfo, 'id' | 'timestamp' | 'strikerId' | 'bowlerId'> & { strikerId?: string | null; bowlerId?: string | null; outPlayerId?: string | null }) => void;
   undoLastBall: () => void;
   resetMatch: () => void;
   clearHistory: () => void;
@@ -325,6 +325,16 @@ export const useMatchStore = create<MatchStore>()(
           let nextStriker = currentInningsState.strikerId;
           let nextNonStriker = currentInningsState.nonStrikerId;
 
+          if (ball.isWicket) {
+            if (ballInput.outPlayerId) {
+              if (ballInput.outPlayerId === nextStriker) nextStriker = null;
+              if (ballInput.outPlayerId === nextNonStriker) nextNonStriker = null;
+            } else {
+              // Regular wicket: Striker is out
+              nextStriker = null;
+            }
+          }
+
           const runsForRotation = ball.runs + (['bye', 'leg-bye'].includes(ball.extras.type) ? ball.extras.runs : 0);
           if (runsForRotation % 2 !== 0) {
             [nextStriker, nextNonStriker] = [nextNonStriker, nextStriker];
@@ -351,7 +361,7 @@ export const useMatchStore = create<MatchStore>()(
             totalBalls: newTotalBalls,
             overs: calculateOvers(newTotalBalls),
             balls: [...currentInningsState.balls, ball],
-            strikerId: ball.isWicket ? null : nextStriker,
+            strikerId: nextStriker,
             nonStrikerId: nextNonStriker,
             currentBowlerId: (isLegalDelivery && newTotalBalls % 6 === 0) ? null : currentInningsState.currentBowlerId,
             fallOfWickets: newFallOfWickets,
@@ -416,25 +426,7 @@ export const useMatchStore = create<MatchStore>()(
           isSix: false,
           strikerId: current.strikerId,
           bowlerId: current.currentBowlerId,
-        });
-
-        // After addBall, strikerId might be null if it was the striker who got out.
-        // But run out can be non-striker too.
-        set((newState) => {
-          const isF = newState.currentInnings === 1;
-          const curr = isF ? newState.firstInnings : newState.secondInnings!;
-          
-          let updatedStriker = curr.strikerId;
-          let updatedNonStriker = curr.nonStrikerId;
-
-          if (outPlayerId === curr.strikerId) updatedStriker = null;
-          if (outPlayerId === curr.nonStrikerId) updatedNonStriker = null;
-
-          const updated = { ...curr, strikerId: updatedStriker, nonStrikerId: updatedNonStriker };
-          return {
-            firstInnings: isF ? updated : newState.firstInnings,
-            secondInnings: !isF ? updated : newState.secondInnings,
-          };
+          outPlayerId,
         });
       },
 

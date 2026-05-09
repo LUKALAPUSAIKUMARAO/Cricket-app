@@ -59,7 +59,7 @@ export function LivePlayerSelection() {
           {(needsStriker || needsNonStriker ? availableBatsmen : availableBowlers).map(player => (
             <Button
               key={player.id}
-              variant="outline"
+              variant="ghost"
               onClick={() => {
                 if (needsStriker) setStriker(player.id);
                 else if (needsNonStriker) setNonStriker(player.id);
