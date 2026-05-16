@@ -8,15 +8,30 @@ import { BallTimeline } from '@/components/viewer/BallTimeline';
 import { MomentumGraph } from '@/components/viewer/MomentumGraph';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { MatchSummary } from '@/components/MatchSummary';
+import { subscribeToMatchState } from '@/lib/firebase';
 
 export default function LiveViewerDashboard() {
   const { setup, isInitialized, isMatchComplete } = useMatchStore();
   const [mounted, setMounted] = useState(false);
 
-  // Prevent hydration mismatch and listen for cross-tab updates
+  // Prevent hydration mismatch and listen for cross-tab or Firebase updates
   useEffect(() => {
     setMounted(true);
     
+    // Check for matchId in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const matchId = urlParams.get('matchId');
+
+    let unsubscribeFirebase = () => {};
+
+    if (matchId) {
+      // Connect to Cloud Firebase
+      unsubscribeFirebase = subscribeToMatchState(matchId, (cloudState) => {
+        useMatchStore.setState(cloudState);
+      });
+    }
+
+    // Fallback cross-tab sync if Firebase is missing
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'cricket-match-storage') {
         useMatchStore.persist.rehydrate();
@@ -24,7 +39,10 @@ export default function LiveViewerDashboard() {
     };
     
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      unsubscribeFirebase();
+    };
   }, []);
 
   if (!mounted) return <div className="min-h-[100dvh] bg-background" />;

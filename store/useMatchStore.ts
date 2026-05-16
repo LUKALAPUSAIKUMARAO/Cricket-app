@@ -72,6 +72,7 @@ export interface SavedMatch {
 }
 
 export interface MatchState {
+  matchId: string | null;
   setup: MatchSetup | null;
   currentInnings: 1 | 2;
   firstInnings: InningsState;
@@ -117,6 +118,7 @@ const initialInnings: InningsState = {
 };
 
 const initialState: MatchState = {
+  matchId: null,
   setup: null,
   currentInnings: 1,
   firstInnings: { ...initialInnings },
@@ -159,7 +161,9 @@ export const useMatchStore = create<MatchStore>()(
       setSetup: (setup) =>
         set((state) => {
           const snapshot = extractState(state);
+          const matchId = state.matchId || Math.random().toString(36).substring(2, 10);
           return {
+            matchId,
             setup,
             matchStartTime: Date.now(),
             actionHistory: [...state.actionHistory, snapshot],
@@ -169,7 +173,9 @@ export const useMatchStore = create<MatchStore>()(
       setChaseSetup: (setup, target) =>
         set((state) => {
           const snapshot = extractState(state);
+          const matchId = state.matchId || Math.random().toString(36).substring(2, 10);
           return {
+            matchId,
             setup,
             currentInnings: 2,
             target,
@@ -459,6 +465,7 @@ export const useMatchStore = create<MatchStore>()(
 
 function extractState(state: MatchStore): MatchState {
   return {
+    matchId: state.matchId,
     setup: state.setup,
     currentInnings: state.currentInnings,
     firstInnings: state.firstInnings,

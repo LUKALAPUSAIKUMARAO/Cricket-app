@@ -12,7 +12,7 @@ interface ShareScoreModalProps {
 }
 
 export function ShareScoreModal({ isOpen, onClose }: ShareScoreModalProps) {
-  const { setup, currentInnings, firstInnings, secondInnings, target } = useMatchStore();
+  const { setup, currentInnings, firstInnings, secondInnings, target, matchId } = useMatchStore();
   const [copied, setCopied] = useState(false);
 
   if (!setup) return null;
@@ -22,6 +22,8 @@ export function ShareScoreModal({ isOpen, onClose }: ShareScoreModalProps) {
   const ballsRemaining = target
     ? setup.totalOvers * 6 - (currentStats?.totalBalls ?? 0)
     : null;
+    
+  const liveLink = typeof window !== 'undefined' ? `${window.location.origin}/live?matchId=${matchId}` : '';
 
   const scoreText = [
     `🏏 ${setup.matchName}`,
@@ -37,6 +39,9 @@ export function ShareScoreModal({ isOpen, onClose }: ShareScoreModalProps) {
       : currentInnings === 1
       ? `📍 Live: ${currentStats?.score}/${currentStats?.wickets} (${currentStats?.overs.toFixed(1)} ov)`
       : '',
+    ``,
+    `🔴 Live Dashboard:`,
+    liveLink,
     ``,
     `⚡ Scored with Cricket Scorer by @_nameisai_`,
   ].filter(s => s !== undefined).join('\n');
@@ -96,7 +101,7 @@ export function ShareScoreModal({ isOpen, onClose }: ShareScoreModalProps) {
               </Button>
             </div>
 
-            <Link href="/live" target="_blank" onClick={onClose} className="w-full">
+            <Link href={`/live?matchId=${matchId}`} target="_blank" onClick={onClose} className="w-full">
               <Button variant="outline" className="w-full rounded-xl h-12 gap-2 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20">
                 <ExternalLink className="w-4 h-4" />
                 Open Live Dashboard

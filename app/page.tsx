@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react';
-import { useMatchStore } from '@/store/useMatchStore';
+import { useMatchStore, MatchState, MatchStore } from '@/store/useMatchStore';
 import { SetupScreen } from '@/components/SetupScreen';
 import { PreMatchFlow } from '@/components/pre-match/PreMatchFlow';
 import { InningsBreakScreen } from '@/components/InningsBreakScreen';
@@ -12,6 +12,7 @@ import { MatchSummary } from '@/components/MatchSummary';
 import { TopBar } from '@/components/TopBar';
 import { LivePlayerSelection } from '@/components/pre-match/LivePlayerSelection';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { syncMatchStateToCloud } from '@/lib/firebase';
 
 export default function Home() {
   const { setup, currentInnings, firstInnings, isMatchComplete, isInitialized } = useMatchStore();
@@ -22,6 +23,29 @@ export default function Home() {
   // Prevent hydration mismatch for zustand persist
   useEffect(() => {
     setMounted(true);
+
+    // Sync scorer's state to Firebase
+    const unsubscribe = useMatchStore.subscribe((state: MatchStore) => {
+      if (state.matchId && state.setup) {
+        // Extract only the necessary state to broadcast
+        const broadcastState: MatchState = {
+          matchId: state.matchId,
+          setup: state.setup,
+          currentInnings: state.currentInnings,
+          firstInnings: state.firstInnings,
+          secondInnings: state.secondInnings,
+          target: state.target,
+          isMatchComplete: state.isMatchComplete,
+          matchStartTime: state.matchStartTime,
+          toss: state.toss,
+          recentPlayers: state.recentPlayers,
+          isInitialized: state.isInitialized,
+        };
+        syncMatchStateToCloud(state.matchId, broadcastState);
+      }
+    });
+    
+    return () => unsubscribe();
   }, []);
 
   // Global reload confirmation
