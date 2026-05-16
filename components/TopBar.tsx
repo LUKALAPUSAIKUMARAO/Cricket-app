@@ -21,7 +21,7 @@ export function TopBar({ soundEnabled, onToggleSound }: TopBarProps) {
   return (
     <>
       {/* Utility buttons moved to the top-right but with plenty of gap from the edge */}
-      <div className="fixed top-3 right-3 md:top-4 md:right-4 z-[100] flex flex-row items-center gap-2.5">
+      <div className="absolute top-3 right-3 md:top-4 md:right-4 z-[100] flex flex-row items-center gap-2.5">
         <button
           onClick={() => setShowHistory(true)}
           className={iconBtn}

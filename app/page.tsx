@@ -12,16 +12,12 @@ import { MatchSummary } from '@/components/MatchSummary';
 import { TopBar } from '@/components/TopBar';
 import { LivePlayerSelection } from '@/components/pre-match/LivePlayerSelection';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
-import { useNightMode } from '@/hooks/useNightMode';
 
 export default function Home() {
   const { setup, currentInnings, firstInnings, isMatchComplete, isInitialized } = useMatchStore();
   const [boundaryType, setBoundaryType] = useState<'4' | '6' | null>(null);
   const [mounted, setMounted] = useState(false);
   const { soundEnabled, toggleSound } = useSoundEffects();
-
-  // Auto switch dark/light based on time of day — runs once on mount
-  useNightMode();
 
   // Prevent hydration mismatch for zustand persist
   useEffect(() => {
@@ -55,42 +51,44 @@ export default function Home() {
     <main className="flex flex-col min-h-[100dvh] relative overflow-hidden text-foreground">
       <div className="premium-bg" />
 
-      {/* Top utility bar — always visible */}
-      <TopBar soundEnabled={soundEnabled} onToggleSound={toggleSound} />
+      <div className="w-full max-w-md mx-auto relative flex flex-col min-h-[100dvh] shadow-2xl">
+        {/* Top utility bar — always visible */}
+        <TopBar soundEnabled={soundEnabled} onToggleSound={toggleSound} />
 
-      {!setup ? (
-        <SetupScreen />
-      ) : !isInitialized ? (
-        <PreMatchFlow />
-      ) : isMatchComplete ? (
-        <MatchSummary />
-      ) : isFirstInningsFinished ? (
-        <InningsBreakScreen />
-      ) : (
-        <>
-          <Scoreboard />
-          <ScoringPad
-            onBoundary={setBoundaryType}
-            soundEnabled={soundEnabled}
-            onToggleSound={toggleSound}
-            isDisabled={!!boundaryType}
-          />
-        </>
-      )}
+        {!setup ? (
+          <SetupScreen />
+        ) : !isInitialized ? (
+          <PreMatchFlow />
+        ) : isMatchComplete ? (
+          <MatchSummary />
+        ) : isFirstInningsFinished ? (
+          <InningsBreakScreen />
+        ) : (
+          <>
+            <Scoreboard />
+            <ScoringPad
+              onBoundary={setBoundaryType}
+              soundEnabled={soundEnabled}
+              onToggleSound={toggleSound}
+              isDisabled={!!boundaryType}
+            />
+          </>
+        )}
 
-      <BoundaryAnimation type={boundaryType} onComplete={() => setBoundaryType(null)} />
+        <BoundaryAnimation type={boundaryType} onComplete={() => setBoundaryType(null)} />
 
-      {isInitialized && <LivePlayerSelection />}
+        {isInitialized && <LivePlayerSelection />}
 
-      <a
-        href="https://www.instagram.com/_nameisai_?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-3 left-1/2 -translate-x-1/2 text-[9px] font-medium tracking-widest uppercase opacity-40 hover:opacity-90 transition-opacity flex items-center space-x-1 z-20 text-foreground"
-      >
-        <span>Crafted by</span>
-        <span className="font-bold">@_nameisai_</span>
-      </a>
+        <a
+          href="https://www.instagram.com/_nameisai_?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[9px] font-medium tracking-widest uppercase opacity-40 hover:opacity-90 transition-opacity flex items-center space-x-1 z-20 text-foreground"
+        >
+          <span>Crafted by</span>
+          <span className="font-bold">@_nameisai_</span>
+        </a>
+      </div>
     </main>
   );
 }

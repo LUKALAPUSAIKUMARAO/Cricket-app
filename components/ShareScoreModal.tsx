@@ -1,9 +1,10 @@
 'use client';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, Copy, Check, X } from 'lucide-react';
+import { Share2, Copy, Check, X, ExternalLink } from 'lucide-react';
 import { Button } from './ui/button';
 import { useMatchStore } from '@/store/useMatchStore';
+import Link from 'next/link';
 
 interface ShareScoreModalProps {
   isOpen: boolean;
@@ -85,7 +86,7 @@ export function ShareScoreModal({ isOpen, onClose }: ShareScoreModalProps) {
               {scoreText}
             </pre>
 
-            <div className="flex space-x-3">
+            <div className="flex space-x-3 mb-3">
               <Button onClick={onClose} variant="outline" className="flex-1 rounded-xl h-12">
                 Cancel
               </Button>
@@ -94,6 +95,13 @@ export function ShareScoreModal({ isOpen, onClose }: ShareScoreModalProps) {
                 {copied ? 'Copied!' : 'Share / Copy'}
               </Button>
             </div>
+
+            <Link href="/live" target="_blank" onClick={onClose} className="w-full">
+              <Button variant="outline" className="w-full rounded-xl h-12 gap-2 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20">
+                <ExternalLink className="w-4 h-4" />
+                Open Live Dashboard
+              </Button>
+            </Link>
           </motion.div>
         </>
       )}

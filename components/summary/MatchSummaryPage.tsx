@@ -16,7 +16,7 @@ import { PlayerOfTheMatch } from './PlayerOfTheMatch';
 import { MatchInsights } from './MatchInsights';
 import { SocialShareCard } from './SocialShareCard';
 
-export function MatchSummaryPage() {
+export function MatchSummaryPage({ isViewer = false }: { isViewer?: boolean }) {
   const { setup, firstInnings, secondInnings, target, resetMatch, toss } = useMatchStore();
   const [showConfirm, setShowConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState<'winner' | 'loser'>('winner');
@@ -256,14 +256,16 @@ export function MatchSummaryPage() {
           </div>
 
           {/* New Match */}
-          <div className="pt-4 pb-8">
-            <Button
-              onClick={() => setShowConfirm(true)}
-              className="w-full h-16 text-lg font-black rounded-2xl shadow-2xl shadow-primary/10 active:scale-95 transition-transform uppercase tracking-wider"
-            >
-              🏏 New Match
-            </Button>
-          </div>
+          {!isViewer && (
+            <div className="pt-4 pb-8">
+              <Button
+                onClick={() => setShowConfirm(true)}
+                className="w-full h-16 text-lg font-black rounded-2xl shadow-2xl shadow-primary/10 active:scale-95 transition-transform uppercase tracking-wider"
+              >
+                🏏 New Match
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
