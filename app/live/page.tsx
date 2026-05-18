@@ -27,7 +27,25 @@ export default function LiveViewerDashboard() {
     if (matchId) {
       // Connect to Cloud Firebase
       unsubscribeFirebase = subscribeToMatchState(matchId, (cloudState) => {
-        useMatchStore.setState(cloudState);
+        // Firebase removes empty arrays from JSON. We must restore them to prevent React crashes!
+        if (cloudState) {
+          if (cloudState.firstInnings && !cloudState.firstInnings.balls) cloudState.firstInnings.balls = [];
+          if (cloudState.firstInnings && !cloudState.firstInnings.fallOfWickets) cloudState.firstInnings.fallOfWickets = [];
+          
+          if (cloudState.secondInnings) {
+            if (!cloudState.secondInnings.balls) cloudState.secondInnings.balls = [];
+            if (!cloudState.secondInnings.fallOfWickets) cloudState.secondInnings.fallOfWickets = [];
+          }
+          
+          if (cloudState.setup) {
+            if (!cloudState.setup.teamAPlayers) cloudState.setup.teamAPlayers = [];
+            if (!cloudState.setup.teamBPlayers) cloudState.setup.teamBPlayers = [];
+          }
+          
+          if (!cloudState.recentPlayers) cloudState.recentPlayers = [];
+          
+          useMatchStore.setState(cloudState);
+        }
       });
     }
 
